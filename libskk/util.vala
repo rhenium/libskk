@@ -70,13 +70,14 @@ namespace Skk {
             {'ッ', "っ", "ｯ"},
             {'ャ', "ゃ", "ｬ"}, {'ュ', "ゅ", "ｭ"}, {'ョ', "ょ", "ｮ"},
             {'ヮ', "ゎ", null},
-            {'ヴ', "う゛", "ｳﾞ"}, {'ヵ', null, null}, {'ヶ', null, null}
+            {'ヴ', "ゔ", "ｳﾞ"}, {'ヵ', "ゕ", null}, {'ヶ', "ゖ", null},
+            {'・', "・", "･"}, {'ー', "ー", "ｰ"}
         };
 
         static const KanaTableEntry[] HankakuKatakanaSubstitute = {
-            {'ヮ', null, "ﾜ"},
-            {'ヵ', null, "ｶ"},
-            {'ヶ', null, "ｹ"}
+            {'ヮ', "ゎ", "ﾜ"},
+            {'ヵ', "ゕ", "ｶ"},
+            {'ヶ', "ゖ", "ｹ"}
         };
 
         static const string[] WideLatinTable = {
