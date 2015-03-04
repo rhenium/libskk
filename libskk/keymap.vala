@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2012 Daiki Ueno <ueno@unixuser.org>
- * Copyright (C) 2011-2012 Red Hat, Inc.
+ * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2014 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,18 +37,16 @@ namespace Skk {
 
         public KeyEvent? where_is (string command) {
             var iter = entries.map_iterator ();
-            if (iter.first ()) {
-                do {
-                    if (iter.get_value () == command) {
-                        var key = iter.get_key ();
-                        try {
-                            return new KeyEvent.from_string (key);
-                        } catch (KeyEventFormatError e) {
-                            warning ("can't get key event from string %s: %s",
-                                     key, e.message);
-                        }
+            while (iter.next ()) {
+                if (iter.get_value () == command) {
+                    var key = iter.get_key ();
+                    try {
+                        return new KeyEvent.from_string (key);
+                    } catch (KeyEventFormatError e) {
+                        warning ("can't get key event from string %s: %s",
+                                 key, e.message);
                     }
-                } while (iter.next ());
+                }
             }
             return null;
         }

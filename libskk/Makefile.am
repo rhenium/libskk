@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2012 Daiki Ueno <ueno@unixuser.org>
-# Copyright (C) 2011-2012 Red Hat, Inc.
+# Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
+# Copyright (C) 2011-2014 Red Hat, Inc.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ libskk_la_VALAFLAGS =						\
 	--pkg config						\
 	--pkg glib-2.0						\
 	--pkg gio-2.0						\
-	--pkg gee-1.0						\
+	--pkg gee-0.8						\
 	--pkg posix						\
 	--pkg json-glib-1.0					\
 	--internal-vapi skk-internals-@SKK_API_VERSION@.vapi	\

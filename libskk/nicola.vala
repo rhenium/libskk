@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2012 Daiki Ueno <ueno@unixuser.org>
- * Copyright (C) 2011-2012 Red Hat, Inc.
+ * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2014 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,7 +139,7 @@ namespace Skk {
                 }
                 else {
                     if (pending.size > 2) {
-                        var iter = pending.list_iterator ();
+                        var iter = pending.bidir_list_iterator ();
                         iter.last ();
                         do {
                             iter.remove ();
@@ -154,7 +154,7 @@ namespace Skk {
 
         int64 get_next_wait (KeyEvent key, int64 time) {
             if (pending.size > 0) {
-                var iter = pending.list_iterator ();
+                var iter = pending.bidir_list_iterator ();
                 iter.last ();
                 do {
                     var entry = iter.get ();

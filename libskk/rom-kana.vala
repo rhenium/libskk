@@ -1,7 +1,7 @@
 // -*- coding: utf-8 -*-
 /*
- * Copyright (C) 2011-2012 Daiki Ueno <ueno@unixuser.org>
- * Copyright (C) 2011-2012 Red Hat, Inc.
+ * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2014 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -192,7 +192,11 @@ namespace Skk {
 
         public RomKanaConverter () {
             try {
-                _rule = new RomKanaMapFile (Rule.find_rule ("default"));
+                var metadata = Rule.find_rule ("default");
+                if (metadata == null) {
+                    throw new RuleParseError.FAILED ("can't find default rule");
+                }
+                _rule = new RomKanaMapFile (metadata);
                 current_node = _rule.root_node;
             } catch (RuleParseError e) {
                 warning ("can't find default rom-kana rule: %s",

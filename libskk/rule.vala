@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2012 Daiki Ueno <ueno@unixuser.org>
- * Copyright (C) 2011-2012 Red Hat, Inc.
+ * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2014 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -262,6 +262,9 @@ namespace Skk {
             this.metadata = metadata;
 
             var default_metadata = find_rule ("default");
+            if (default_metadata == null) {
+                throw new RuleParseError.FAILED ("can't find default metadata");
+            }
             foreach (var entry in keymap_names) {
                 var _metadata = metadata;
                 if (metadata.locate_map_file ("keymap", entry.value) == null) {

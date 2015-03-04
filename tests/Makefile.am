@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2012 Daiki Ueno <ueno@unixuser.org>
-# Copyright (C) 2011-2012 Red Hat, Inc.
+# Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
+# Copyright (C) 2011-2014 Red Hat, Inc.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ INCLUDES = -I$(top_srcdir) $(LIBSKK_CFLAGS)
 TESTS_ENVIRONMENT =					\
 	G_DEBUG=${G_DEBUG:+"${G_DEBUG},"}gc-friendly	\
 	G_SLICE=${G_SLICE},always-malloc		\
-	LIBSKK_DATA_PATH=$(top_srcdir)
+	LIBSKK_DATA_PATH=$(top_srcdir):$(top_srcdir)/tests
 LOG_COMPILER = $(LIBTOOL) --mode=execute $(VALGRIND) $(VALGRIND_OPTS)
 TESTS = rom-kana file-dict user-dict cdb-dict skkserv rule context basic
 noinst_PROGRAMS = $(TESTS)

@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2012 Daiki Ueno <ueno@unixuser.org>
-# Copyright (C) 2011-2012 Red Hat, Inc.
+# Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
+# Copyright (C) 2011-2014 Red Hat, Inc.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 AC_PREREQ(2.63)
 AC_CONFIG_MACRO_DIR([m4])
 
-AC_INIT([libskk], [1.0.1], [ueno@unixuser.org])
+AC_INIT([libskk], [1.0.2], [ueno@unixuser.org])
 
 SKK_API_VERSION=1.0
 SKK_API_MAJOR_VERSION=1
@@ -70,8 +70,8 @@ PKG_CHECK_MODULES([GIO], [gio-2.0], ,
   [AC_MSG_ERROR([can't find gio-2.0])])
 
 # check gee
-PKG_CHECK_MODULES([GEE], [gee-1.0], ,
-  [AC_MSG_ERROR([can't find gee-1.0])])
+PKG_CHECK_MODULES([GEE], [gee-0.8], ,
+  [AC_MSG_ERROR([can't find gee-0.8])])
 
 # check json-glib
 PKG_CHECK_MODULES([JSON_GLIB], [json-glib-1.0], ,

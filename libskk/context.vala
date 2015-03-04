@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2012 Daiki Ueno <ueno@unixuser.org>
- * Copyright (C) 2011-2012 Red Hat, Inc.
+ * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2014 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -353,7 +353,6 @@ namespace Skk {
         void start_dict_edit (string midasi, bool okuri) {
             var state = new State (_dictionaries);
             state.midasi = midasi;
-            state.okuri = okuri;
             push_state (state);
             update_preedit ();
         }
@@ -383,9 +382,9 @@ namespace Skk {
             if (dict_edit_level () > 0) {
                 var state = state_stack.peek_head ();
                 midasi = state.midasi;
-                okuri = state.okuri;
                 pop_state ();
                 state = state_stack.peek_head ();
+                okuri = state.okuri;
                 if (state.candidates.size == 0)
                     state.cancel_okuri ();
                 return true;
@@ -614,7 +613,7 @@ namespace Skk {
 
         void update_preedit () {
             var builder = new StringBuilder ();
-            var iter = state_stack.list_iterator ();
+            var iter = state_stack.bidir_list_iterator ();
             iter.last ();
             while (iter.has_previous ()) {
                 var state = iter.get ();

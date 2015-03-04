@@ -1,7 +1,7 @@
 // -*- coding: utf-8 -*-
 /*
- * Copyright (C) 2011-2012 Daiki Ueno <ueno@unixuser.org>
- * Copyright (C) 2011-2012 Red Hat, Inc.
+ * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2014 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ namespace Skk {
         internal StringBuilder kuten = new StringBuilder ();
 
         ArrayList<string> completion = new ArrayList<string> ();
-        internal Iterator<string> completion_iterator;
+        internal BidirListIterator<string> completion_iterator;
 
         internal string[] auto_start_henkan_keywords;
         internal string? auto_start_henkan_keyword = null;
@@ -208,7 +208,7 @@ namespace Skk {
         string extract_numerics (string midasi, out int[] numerics) {
             MatchInfo info = null;
             int start_pos = 0;
-            var numeric_list = new ArrayList<int> ();
+            int[] _numerics = {};
             var builder = new StringBuilder ();
             while (true) {
                 try {
@@ -228,12 +228,12 @@ namespace Skk {
                 info.fetch_pos (0,
                                 out match_start_pos,
                                 out match_end_pos);
-                numeric_list.add (int.parse (numeric));
+                _numerics += int.parse (numeric);
                 builder.append (midasi[start_pos:match_start_pos]);
                 builder.append ("#");
                 start_pos = match_end_pos;
             }
-            numerics = numeric_list.to_array ();
+            numerics = _numerics;
             builder.append (midasi[start_pos:midasi.length]);
             return builder.str;
         }
@@ -310,7 +310,9 @@ namespace Skk {
             int[] numerics = new int[0];
             lookup_internal (midasi, numerics, okuri);
             var numeric_midasi = extract_numerics (midasi, out numerics);
-            lookup_internal (numeric_midasi, numerics, okuri);
+            if (numeric_midasi != midasi) {
+                lookup_internal (numeric_midasi, numerics, okuri);
+            }
             candidates.add_candidates_end ();
         }
 
@@ -351,7 +353,7 @@ namespace Skk {
                 }
                 completion.sort ();
             }
-            completion_iterator = completion.iterator ();
+            completion_iterator = completion.bidir_list_iterator ();
             if (!completion_iterator.first ()) {
                 completion_iterator = null;
             }
@@ -456,6 +458,9 @@ namespace Skk {
                     state.delete_surrounding_text (
                         0, state.surrounding_text.length);
                 }
+                state.handler_type = typeof (StartStateHandler);
+                return true;
+            } else if (command == "start-preedit-no-delete") {
                 state.handler_type = typeof (StartStateHandler);
                 return true;
             }
@@ -826,7 +831,8 @@ namespace Skk {
             else if (command == "start-preedit") {
                 return true;
             }
-            else if (command == "start-preedit-kana") {
+            else if (command == "start-preedit-kana" ||
+                     command == "start-preedit-no-delete") {
                 if (state.rom_kana_converter.output.length > 0) {
                     state.okuri = true;
                 }

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2012 Daiki Ueno <ueno@unixuser.org>
- * Copyright (C) 2011-2012 Red Hat, Inc.
+ * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2014 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,10 +70,8 @@ namespace Skk {
                 var elements = include.get_elements ();
                 foreach (var element in elements) {
                     var parent = element.get_string ();
-                    if (parent in included) {
-                        throw new RuleParseError.FAILED (
-                            "found circular include of %s", parent);
-                    }
+                    if (parent in included)
+                        continue;
                     string parent_rule, parent_name;
                     var index = parent.index_of ("/");
                     if (index < 0) {

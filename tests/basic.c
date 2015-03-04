@@ -104,6 +104,8 @@ static SkkTransition okuri_ari_transitions[] =
     { SKK_INPUT_MODE_HIRAGANA, "q S i r o K u", "▼白ク", "", SKK_INPUT_MODE_KATAKANA },
     /* Issue#23 */
     { SKK_INPUT_MODE_HIRAGANA, "T e t u d a I SPC C-g", "▼手伝い", "", SKK_INPUT_MODE_HIRAGANA },
+    /* Issue#33 */
+    { SKK_INPUT_MODE_HIRAGANA, "N e o C h i SPC N", "▼ねお*ち【 ▽n】", "", SKK_INPUT_MODE_HIRAGANA },
     { 0, NULL }
   };
 
@@ -377,6 +379,33 @@ surrounding (void) {
   destroy_context (context);
 }
 
+static void
+start_preedit_no_delete (void) {
+  SkkContext *context;
+  GError *error;
+  SkkRule *rule;
+  SkkTransition transitions[] = {
+    { SKK_INPUT_MODE_HIRAGANA, "@", "▽", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "@ a", "▽あ", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "@ a i", "▽あい", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "@ a i SPC", "▼愛", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "@ k a n g a @ e", "▼考え", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "@ k a n g a @ e r", "r", "考え", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "@ h a @ z", "▽は*z", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "@ h a @ z u", "▼恥ず", "", SKK_INPUT_MODE_HIRAGANA },
+    { 0, NULL }
+  };
+
+  context = create_context (TRUE, TRUE);
+  error = NULL;
+  rule = skk_rule_new ("test-sticky", &error);
+  g_assert_no_error (error);
+  skk_context_set_typing_rule (context, rule);
+  g_object_unref (rule);
+  check_transitions (context, transitions);
+  destroy_context (context);
+}
+
 int
 main (int argc, char **argv) {
   g_type_init ();
@@ -423,5 +452,6 @@ main (int argc, char **argv) {
               context_setup, test_transitions, context_teardown);
   g_test_add_func ("/libskk/candidate-list", candidate_list);
   g_test_add_func ("/libskk/surrounding", surrounding);
+  g_test_add_func ("/libskk/start_preedit_no_delete", start_preedit_no_delete);
   return g_test_run ();
 }
