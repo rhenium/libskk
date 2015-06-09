@@ -777,6 +777,10 @@ namespace Skk {
                     return true;
                 }
                 else if (state.rom_kana_converter.delete ()) {
+                    if (state.rom_kana_converter.output.length == 0 &&
+                        state.rom_kana_converter.preedit.length == 0) {
+                        state.handler_type = typeof (NoneStateHandler);
+                    }
                     return true;
                 }
                 else if (state.output.len > 0) {
