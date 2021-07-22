@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
- * Copyright (C) 2011-2014 Red Hat, Inc.
+ * Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2018 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ namespace Skk {
          */
         public int64 maxwait = 10000000;
 
-        static const string[] SPECIAL_DOUBLES = {
+        const string[] SPECIAL_DOUBLES = {
             "[fj]", "[gh]", "[dk]", "[LR]"
         };
 
@@ -91,11 +91,11 @@ namespace Skk {
         }
 
         static bool is_lshift (KeyEvent key) {
-            return key.name == "lshift";
+            return key.name == "lshift" || key.name == "Muhenkan";
         }
 
         static bool is_rshift (KeyEvent key) {
-            return key.name == "rshift";
+            return key.name == "rshift" || key.name == "Henkan";
         }
 
         static bool is_shift (KeyEvent key) {
@@ -180,9 +180,9 @@ namespace Skk {
         }
 
         void apply_shift (KeyEvent s, KeyEvent c) {
-            if (s.name == "lshift") {
+            if (is_lshift (s)) {
                 c.modifiers |= ModifierType.LSHIFT_MASK;
-            } else if (s.name == "rshift") {
+            } else if (is_rshift (s)) {
                 c.modifiers |= ModifierType.RSHIFT_MASK;
             }
         }

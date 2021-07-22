@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
- * Copyright (C) 2011-2014 Red Hat, Inc.
+ * Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2018 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -157,7 +157,7 @@ namespace Skk {
             string value;
         }
 
-        static const KeymapNameEntry[] keymap_names = {
+        const KeymapNameEntry[] keymap_names = {
             { InputMode.HIRAGANA, "hiragana" },
             { InputMode.KATAKANA, "katakana" },
             { InputMode.HANKAKU_KATAKANA, "hankaku-katakana" },

@@ -1,3 +1,32 @@
+Noteworthy changes in version 1.0.5 (2018-09-15)
+------------------------------------------------
+
+ * build: Use libxkbcommon to resolve keysyms [#54]
+
+Noteworthy changes in version 1.0.4 (2018-06-26)
+------------------------------------------------
+
+ * Don't consume key release events [#52]
+ * Improve hankaku katakana conversion [#51]
+ * Use the same typing rule in dict-edit mode [#50]
+ * Add `abort-to-latin` and `abort-to-latin-unhandled` command [#48]
+ * Add more z-* shortcuts from DDSKK
+ * Fix memory leak caused by Vala array conversion
+ * Bump build requirements (glib >= 2.36, valadoc >= 0.40)
+
+Noteworthy changes in version 1.0.3 (2017-11-10)
+------------------------------------------------
+
+ * Fix hiragana to katakana conversion in abbrev mode [#41]
+ * Make "commit-unhandled" actually commit in abbrev mode [#39]
+ * Avoid redundant dictionary lookup in non-numeric conversion cases [#36]
+ * Fix KZIK rules [#35, #37]
+ * Fix okuri-ari word registration [#33, #34]
+ * Add command for sticky-shift [#32]
+ * Don't crash when a rule has no default metadata [#31]
+ * Bind C-j to go back to hiragana in AZIK latin [#30]
+ * Build fixes [#42, #43]
+
 Noteworthy changes in version 1.0.2 (2014-09-09)
 ------------------------------------------------
 
@@ -5,7 +34,7 @@ Noteworthy changes in version 1.0.2 (2014-09-09)
  * rules: new ACT09 rule contributed by Naoki Mizuno (Issue#28).
  * Consume key event for "commit" command (Issue#26).  Use
    "commit-unhandled" for the previous behavior.
- * Comsume C-j in abbrev mode (Issue#24).
+ * Consume C-j in abbrev mode (Issue#24).
 
 Noteworthy changes in version 1.0.1 (2013-04-01)
 ------------------------------------------------
@@ -105,8 +134,8 @@ Noteworthy changes in version 0.0.1 (2011-11-30)
 
   * First release of libskk.
 
-Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
-Copyright (C) 2011-2014 Red Hat, Inc.
+Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+Copyright (C) 2011-2018 Red Hat, Inc.
 
 This file is free software; as a special exception the author gives
 unlimited permission to copy and/or distribute it, with or without

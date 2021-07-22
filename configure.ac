@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
-# Copyright (C) 2011-2014 Red Hat, Inc.
+# Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+# Copyright (C) 2011-2018 Red Hat, Inc.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 AC_PREREQ(2.63)
 AC_CONFIG_MACRO_DIR([m4])
 
-AC_INIT([libskk], [1.0.2], [ueno@unixuser.org])
+AC_INIT([libskk], [1.0.5], [ueno@gnu.org])
 
 SKK_API_VERSION=1.0
 SKK_API_MAJOR_VERSION=1
@@ -33,7 +33,7 @@ AC_SUBST([SKK_LIBRARY_SUFFIX])
 AC_SUBST([SKK_LIBRARY_SUFFIX_U],[AS_TR_SH([$SKK_LIBRARY_SUFFIX])])
 
 dnl Init automake
-AM_INIT_AUTOMAKE([1.11.1 color-tests])
+AM_INIT_AUTOMAKE([1.11.1 dist-xz no-dist-gzip])
 AM_MAINTAINER_MODE([enable])
 AC_GNU_SOURCE
 
@@ -42,7 +42,8 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CC_STDC
 AC_PROG_INSTALL
-IT_PROG_INTLTOOL
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.19.8])
 
 # define PACKAGE_VERSION_* variables
 AM_DISABLE_STATIC
@@ -66,7 +67,7 @@ AC_SUBST([LT_REVISION])
 AC_SUBST([LT_AGE])
 
 # check gio
-PKG_CHECK_MODULES([GIO], [gio-2.0], ,
+PKG_CHECK_MODULES([GIO], [gio-2.0 >= 2.36], ,
   [AC_MSG_ERROR([can't find gio-2.0])])
 
 # check gee
@@ -77,9 +78,13 @@ PKG_CHECK_MODULES([GEE], [gee-0.8], ,
 PKG_CHECK_MODULES([JSON_GLIB], [json-glib-1.0], ,
   [AC_MSG_ERROR([can't find json-glib-1.0])])
 
-LIBSKK_CFLAGS="$GIO_CFLAGS $GEE_CFLAGS $JSON_GLIB_CFLAGS"
+# check xkbcommon
+PKG_CHECK_MODULES([XKBCOMMON], [xkbcommon], ,
+  [AC_MSG_ERROR([can't find xkbcommon])])
+
+LIBSKK_CFLAGS="$GIO_CFLAGS $GEE_CFLAGS $JSON_GLIB_CFLAGS $XKBCOMMON_CFLAGS"
 AC_SUBST(LIBSKK_CFLAGS)
-LIBSKK_LIBS="$GIO_LIBS $GEE_LIBS $JSON_GLIB_LIBS"
+LIBSKK_LIBS="$GIO_LIBS $GEE_LIBS $JSON_GLIB_LIBS $XKBCOMMON_LIBS"
 AC_SUBST(LIBSKK_LIBS)
 
 GOBJECT_INTROSPECTION_CHECK([0.9.0])
@@ -109,12 +114,8 @@ AC_ARG_ENABLE([docs],
               [enable_docs=$enableval], [enable_docs=no])
 AM_CONDITIONAL([ENABLE_DOCS], [test x$enable_docs = xyes])
 
-VALADOC_REQUIRED=0.3.1
-
 have_valadoc=no
 if test x$enable_docs = xyes; then
-  # make sure the library is new enough and the program exists
-  PKG_CHECK_MODULES([VALADOC], [valadoc-1.0 >= $VALADOC_REQUIRED])
   AC_PATH_PROG([VALADOC], [valadoc], [:])
   AS_IF([test "$VALADOC" != :], have_valadoc=yes)
 fi

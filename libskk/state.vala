@@ -1,7 +1,7 @@
 // -*- coding: utf-8 -*-
 /*
- * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
- * Copyright (C) 2011-2014 Red Hat, Inc.
+ * Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2018 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,9 @@
 using Gee;
 
 namespace Skk {
-    static const string[] AUTO_START_HENKAN_KEYWORDS = {
-        "を", "、", "。", "．", "，", "？", "」",
+    const string[] AUTO_START_HENKAN_KEYWORDS = {
+        "を", "ヲ", "、", "。", "．", "，", "？", "」",
+        "ｦ", "､", "｡", "｣",
         "！", "；", "：", ")", ";", ":", "）",
         "”", "】", "』", "》", "〉", "｝", "］",
         "〕", "}", "]", "?", ".", ",", "!"
@@ -67,12 +68,14 @@ namespace Skk {
         // Used by Context for dict edit.
         internal string midasi;
 
+        internal StringBuilder selection = new StringBuilder ();
         internal StringBuilder output = new StringBuilder ();
         internal StringBuilder abbrev = new StringBuilder ();
         internal StringBuilder kuten = new StringBuilder ();
 
         ArrayList<string> completion = new ArrayList<string> ();
         internal BidirListIterator<string> completion_iterator;
+        internal Set<string> completion_set = new HashSet<string> ();
 
         internal string[] auto_start_henkan_keywords;
         internal string? auto_start_henkan_keyword = null;
@@ -190,10 +193,12 @@ namespace Skk {
             okuri = false;
             _typing_rule.get_filter ().reset ();
             completion_iterator = null;
+            completion_set.clear ();
             completion.clear ();
             candidates.clear ();
             abbrev.erase ();
             kuten.erase ();
+            selection.erase();
             auto_start_henkan_keyword = null;
             surrounding_text = null;
             surrounding_end = 0;
@@ -349,7 +354,9 @@ namespace Skk {
             foreach (var dict in dictionaries) {
                 string[] _completion = dict.complete (midasi);
                 foreach (var word in _completion) {
-                    completion.add (word);
+                    if (completion_set.add (word)) {
+                        completion.add (word);
+                    }
                 }
                 completion.sort ();
             }
@@ -370,6 +377,7 @@ namespace Skk {
                                                         out uint cursor_pos);
         internal signal bool delete_surrounding_text (int offset,
                                                       uint nchars);
+        public signal void request_selection_text ();
 
         internal string get_yomi () {
             StringBuilder builder = new StringBuilder ();
@@ -410,7 +418,7 @@ namespace Skk {
     }
 
     class NoneStateHandler : StateHandler {
-        static const InputModeCommandEntry[] input_mode_commands = {
+        const InputModeCommandEntry[] input_mode_commands = {
             { "set-input-mode-hiragana", InputMode.HIRAGANA },
             { "set-input-mode-katakana", InputMode.KATAKANA },
             { "set-input-mode-hankaku-katakana", InputMode.HANKAKU_KATAKANA },
@@ -423,15 +431,35 @@ namespace Skk {
         {
             var command = state.lookup_key (key);
             // check abort and commit event
-            if (command == "abort") {
-                bool retval;
+            if (command == "abort" ||
+                command == "abort-to-latin" ||
+                command == "abort-to-latin-unhandled") {
+                bool something_changed;
+                bool event_handled;
                 if (state.rom_kana_converter.preedit.length > 0) {
-                    retval = true;
+                    something_changed = true;
                 } else {
-                    retval = state.recursive_edit_abort ();
+                    something_changed = state.recursive_edit_abort ();
                 }
+                event_handled = something_changed;
                 state.reset ();
-                return retval;
+                if (command == "abort") {
+                    return something_changed;
+                }
+                // change to latin mode
+                if (state.input_mode != InputMode.LATIN) {
+                    state.input_mode = InputMode.LATIN;
+                    // this change doesn't affect `event_handled`
+                    something_changed = true;
+                }
+                // if the key event will not be handled by
+                // "abort-to-latin-unhandled" command,
+                // let key event pass through
+                if (command == "abort-to-latin-unhandled" &&
+                    !event_handled) {
+                    return false;
+                }
+                return something_changed;
             } else if (command == "commit" ||
                        command == "commit-unhandled") {
                 bool retval;
@@ -492,6 +520,13 @@ namespace Skk {
                     return true;
                 }
                 return false;
+            }
+
+            if (command == "register") {
+                state.request_selection_text();
+                state.output.append(state.selection.str);
+                state.selection.erase();
+                return true;
             }
 
             switch (state.input_mode) {
@@ -613,7 +648,9 @@ namespace Skk {
                                                   ref KeyEvent key)
         {
             var command = state.lookup_key (key);
-            if (command == "abort") {
+            if (command == "abort" ||
+                command == "abort-to-latin" ||
+                command == "abort-to-latin-unhandled") {
                 state.reset ();
                 return true;
             }
@@ -660,7 +697,9 @@ namespace Skk {
                                                   ref KeyEvent key)
         {
             var command = state.lookup_key (key);
-            if (command == "abort") {
+            if (command == "abort" ||
+                command == "abort-to-latin" ||
+                command == "abort-to-latin-unhandled") {
                 state.reset ();
                 return true;
             }
@@ -688,6 +727,29 @@ namespace Skk {
                 state.reset ();
                 return true;
             }
+            else if (command == "commit-unhandled") {
+                state.output.assign (state.abbrev.str);
+                state.reset ();
+                return state.egg_like_newline;
+            }
+            else if (command == "register") {
+                state.request_selection_text();
+                state.abbrev.append(state.selection.str);
+                state.selection.erase();
+                return true;
+            }
+            else if (command == "complete") {
+                if (state.completion_iterator == null) {
+                    state.completion_start (state.abbrev.str);
+                }
+                if (state.completion_iterator != null) {
+                    string midasi = state.completion_iterator.get ();
+                    state.abbrev.assign (midasi);
+                    if (state.completion_iterator.has_next ()) {
+                        state.completion_iterator.next ();
+                    }
+                }
+            }
             else if (key.modifiers == 0 &&
                      0x20 <= key.code && key.code <= 0x7E) {
                 state.abbrev.append_unichar (key.code);
@@ -705,7 +767,7 @@ namespace Skk {
     }
 
     class StartStateHandler : StateHandler {
-        static const InputModeCommandEntry[] end_preedit_commands = {
+        const InputModeCommandEntry[] end_preedit_commands = {
             { "set-input-mode-hiragana", InputMode.HIRAGANA },
             { "set-input-mode-katakana", InputMode.KATAKANA },
             { "set-input-mode-hankaku-katakana", InputMode.HANKAKU_KATAKANA }
@@ -715,7 +777,14 @@ namespace Skk {
                                                   ref KeyEvent key)
         {
             var command = state.lookup_key (key);
-            if (command == "abort") {
+
+            // if no command nor code is assigned to key, we can't proceed
+            if (command == null && key.code == 0)
+                return true;
+
+            if (command == "abort" ||
+                command == "abort-to-latin" ||
+                command == "abort-to-latin-unhandled") {
                 state.reset ();
                 return true;
             }
@@ -725,7 +794,7 @@ namespace Skk {
             foreach (var entry in end_preedit_commands) {
                 if (entry.key == command) {
                     state.rom_kana_converter.output_nn_if_any ();
-                    state.output.assign (
+                    state.output.append (
                         Util.convert_by_input_mode (
                             state.rom_kana_converter.output,
                             entry.value));
@@ -828,7 +897,7 @@ namespace Skk {
                     key = state.where_is ("next-candidate");
                     return false;
                 } else {
-                    state.rom_kana_converter.output = kana;
+                    state.rom_kana_converter.output += kana;
                     return true;
                 }
             }
@@ -861,6 +930,12 @@ namespace Skk {
                             0, state.surrounding_end);
                     return true;
                 }
+            }
+            else if (command == "register") {
+                state.request_selection_text();
+                state.rom_kana_converter.output += state.selection.str;
+                state.selection.erase();
+                return true;
             }
 
             unichar lower_code;
@@ -948,6 +1023,11 @@ namespace Skk {
                                                   ref KeyEvent key)
         {
             var command = state.lookup_key (key);
+
+            // if no command nor code is assigned to key, we can't proceed
+            if (command == null && key.code == 0)
+                return true;
+
             if (command == "previous-candidate") {
                 if (!state.candidates.previous ()) {
                     state.candidates.clear ();
@@ -999,7 +1079,9 @@ namespace Skk {
                 }
                 return true;
             }
-            else if (command == "abort") {
+            else if (command == "abort" ||
+                     command == "abort-to-latin" ||
+                     command == "abort-to-latin-unhandled") {
                 state.candidates.clear ();
                 state.cancel_okuri ();
                 state.handler_type = typeof (StartStateHandler);

@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
-# Copyright (C) 2011-2014 Red Hat, Inc.
+# Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+# Copyright (C) 2011-2018 Red Hat, Inc.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,11 @@ if HAVE_VALADOC
 SUBDIRS += docs
 endif
 
+DIST_SUBDIRS = libskk rules tools tests docs po
+
 GITIGNOREFILES =				\
+	ABOUT-NLS				\
+	config.rpath				\
 	INSTALL					\
 	aclocal.m4				\
 	compile					\
@@ -36,6 +40,19 @@ GITIGNOREFILES =				\
 	mkinstalldirs				\
 	`find "m4" -type f -name "*.m4" ! -name "vala.m4" -print` \
 	$(top_builddir)/lcov.html/*		\
+	$(top_builddir)/docs/gtk-doc		\
+	$(top_builddir)/docs/libskk		\
+	po/Makevars.template			\
+	po/Rules-quot				\
+	po/boldquot.sed				\
+	po/en@boldquot.header			\
+	po/en@quot.header			\
+	po/insert-header.sin			\
+	po/quot.sed				\
+	po/remove-potcdate.sed			\
+	po/remove-potcdate.sin			\
+	po/stamp-po				\
+	test-driver				\
 	$(NULL)
 
 distclean-local:

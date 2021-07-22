@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
- * Copyright (C) 2011-2014 Red Hat, Inc.
+ * Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2018 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -265,6 +265,10 @@ namespace Skk {
             return delete_surrounding_text (offset, nchars);
         }
 
+        void request_selection_text_cb () {
+            request_selection_text ();
+        }
+
         void connect_state_signals (State state) {
             state.recursive_edit_start.connect (start_dict_edit);
             state.recursive_edit_end.connect (end_dict_edit);
@@ -274,6 +278,8 @@ namespace Skk {
                 retrieve_surrounding_text_cb);
             state.delete_surrounding_text.connect (
                 delete_surrounding_text_cb);
+            state.request_selection_text.connect (
+                request_selection_text_cb);
         }
 
         void disconnect_state_signals (State state) {
@@ -285,6 +291,8 @@ namespace Skk {
                 retrieve_surrounding_text_cb);
             state.delete_surrounding_text.disconnect (
                 delete_surrounding_text_cb);
+            state.request_selection_text.disconnect (
+                request_selection_text_cb);
         }
 
         /**
@@ -309,6 +317,22 @@ namespace Skk {
          */
         public signal bool delete_surrounding_text (int offset,
                                                     uint nchars);
+
+        public signal void request_selection_text ();
+
+        /**
+         * Set the current selection text.
+         *
+         * @param text selection text
+         */
+        public void set_selection_text (string? text) {
+            var state = state_stack.peek_head ();
+
+            if (text == null)
+                state.selection.erase();
+            else
+                state.selection.assign(text);
+        }
 
         bool select_candidate_in_dictionaries (Candidate candidate) {
             bool changed = false;
@@ -352,6 +376,7 @@ namespace Skk {
 
         void start_dict_edit (string midasi, bool okuri) {
             var state = new State (_dictionaries);
+            state.typing_rule = typing_rule;
             state.midasi = midasi;
             push_state (state);
             update_preedit ();
@@ -504,8 +529,14 @@ namespace Skk {
          */
         public bool process_key_event (KeyEvent key) {
             KeyEvent? _key = key_event_filter.filter_key_event (key);
-            if (_key == null)
-                return true;
+            if (_key == null) {
+                // Let key release events pass through when not editing
+                // dictionary, because they would be necessary for some
+                // web applications to correctly handle key events when
+                // focused to text box.
+                return ((key.modifiers & ModifierType.RELEASE_MASK) == 0 &&
+                        dict_edit_level () == 0);
+            }
             return process_key_event_internal (_key);
         }
 

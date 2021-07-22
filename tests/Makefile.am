@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
-# Copyright (C) 2011-2014 Red Hat, Inc.
+# Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+# Copyright (C) 2011-2018 Red Hat, Inc.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,18 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-INCLUDES = -I$(top_srcdir) $(LIBSKK_CFLAGS)
-
 TESTS_ENVIRONMENT =					\
 	G_DEBUG=${G_DEBUG:+"${G_DEBUG},"}gc-friendly	\
 	G_SLICE=${G_SLICE},always-malloc		\
 	LIBSKK_DATA_PATH=$(top_srcdir):$(top_srcdir)/tests
 LOG_COMPILER = $(LIBTOOL) --mode=execute $(VALGRIND) $(VALGRIND_OPTS)
-TESTS = rom-kana file-dict user-dict cdb-dict skkserv rule context basic
+check_PROGRAMS = rom-kana file-dict user-dict cdb-dict skkserv rule context basic
+TESTS = $(check_PROGRAMS)
 noinst_PROGRAMS = $(TESTS)
 noinst_HEADERS = common.h
 
 AM_CPPFLAGS =								\
+	-I$(top_srcdir) $(LIBSKK_CFLAGS)				\
 	-DLIBSKK_FILE_DICT=\"$(top_srcdir)/tests/file-dict.dat\"	\
 	-DLIBSKK_CDB_DICT=\"$(top_srcdir)/tests/cdb-dict.dat\"		\
 	$(NULL)
@@ -54,7 +54,7 @@ context_LDADD = $(top_builddir)/libskk/libskk.la $(LIBSKK_LIBS)
 basic_SOURCES = basic.c common.c
 basic_LDADD = $(top_builddir)/libskk/libskk.la $(LIBSKK_LIBS)
 
-EXTRA_DIST = file-dict.dat cdb-dict.dat
+EXTRA_DIST = file-dict.dat cdb-dict.dat rules
 CLEANFILES = user-dict.dat valgrind.log.*
 
 -include $(top_srcdir)/git.mk

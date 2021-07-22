@@ -48,6 +48,7 @@ static SkkTransition rom_kana_transitions[] =
     { SKK_INPUT_MODE_KATAKANA, "V u q", "", "う゛", SKK_INPUT_MODE_KATAKANA },
     { SKK_INPUT_MODE_HIRAGANA, "Q n q", "", "ン", SKK_INPUT_MODE_HIRAGANA },
     { SKK_INPUT_MODE_HIRAGANA, "Q Q", "▽", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "N o b a - s u C-q", "", "ﾉﾊﾞｰｽ", SKK_INPUT_MODE_HIRAGANA },
     /* Issue#9 */
     { SKK_INPUT_MODE_HIRAGANA, "n SPC", "", "ん ", SKK_INPUT_MODE_HIRAGANA },
     /* ibus-skk Issue#36 */
@@ -56,6 +57,7 @@ static SkkTransition rom_kana_transitions[] =
     { SKK_INPUT_MODE_LATIN, "a \t", "", "a", SKK_INPUT_MODE_LATIN },
     /* Issue#11 */
     { SKK_INPUT_MODE_HIRAGANA, "q s a n S y a", "▽シャ", "サン", SKK_INPUT_MODE_KATAKANA },
+    { SKK_INPUT_MODE_HIRAGANA, "H o h Control_L a a a a a", "▽ほはああああ", "", SKK_INPUT_MODE_HIRAGANA },
     { 0, NULL }
   };
 
@@ -77,6 +79,7 @@ static SkkTransition okuri_nasi_transitions[] =
     { SKK_INPUT_MODE_KATAKANA, "K a n j i SPC q", "", "漢字", SKK_INPUT_MODE_HIRAGANA },
     { SKK_INPUT_MODE_HIRAGANA, "N A N A", "▼な*んあ【】", "", SKK_INPUT_MODE_HIRAGANA },
     { SKK_INPUT_MODE_HIRAGANA, "N A N a", "▼な*な【】", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "A o SPC Control_L", "▼青", "", SKK_INPUT_MODE_HIRAGANA },
     { 0, NULL }
   };
 
@@ -136,6 +139,15 @@ static SkkTransition delete_transitions[] =
 static SkkTransition hankaku_katakana_transitions[] =
   {
     { SKK_INPUT_MODE_HIRAGANA, "C-q Z e n k a k u", "▽ｾﾞﾝｶｸ", "", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    { SKK_INPUT_MODE_HIRAGANA, "C-q n o b a - s u", "", "ﾉﾊﾞｰｽ", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    { SKK_INPUT_MODE_HIRAGANA, "C-q [ ]", "", "｢｣", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    { SKK_INPUT_MODE_HIRAGANA, "C-q , .", "", "､｡", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    { SKK_INPUT_MODE_HIRAGANA, "C-q z /", "", "･", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    // Test cases for henkan auto-start and punctuation conversion of hankaku katakana.
+    { SKK_INPUT_MODE_HANKAKU_KATAKANA, "A SPC", "▼阿", "", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    { SKK_INPUT_MODE_HANKAKU_KATAKANA, "A , o", "", "阿､ｵ", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    { SKK_INPUT_MODE_HANKAKU_KATAKANA, "A . o", "", "阿｡ｵ", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    { SKK_INPUT_MODE_HANKAKU_KATAKANA, "A w o C-j", "", "阿ｦ", SKK_INPUT_MODE_HANKAKU_KATAKANA },
     { 0, NULL }
   };
 
@@ -154,6 +166,18 @@ static SkkTransition completion_transitions[] =
     { SKK_INPUT_MODE_HIRAGANA, "K o u k o \t \t", "▽こうこく", "", SKK_INPUT_MODE_HIRAGANA },
     /* no match for midasi word (= "あぱ") */
     { SKK_INPUT_MODE_HIRAGANA, "A p a \t", "▽あぱ", "", SKK_INPUT_MODE_HIRAGANA },
+    /* file dict has midasi word (= あい) while user dict does not */
+    { SKK_INPUT_MODE_HIRAGANA, "A i SPC C-j A \t \t", "▽あいさつ", "愛", SKK_INPUT_MODE_HIRAGANA },
+
+    /* Abbrev mode */
+    /* midasi "mail" exists */
+    { SKK_INPUT_MODE_HIRAGANA, "/ m a i \t", "▽mail", "",  SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "/ m a i l \t", "▽mailer", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "/ m a i l \t \t", "▽mailing", "", SKK_INPUT_MODE_HIRAGANA },
+    /* no more match for "mail" */
+    { SKK_INPUT_MODE_HIRAGANA, "/ m a i l \t \t \t ", "▽mailing", "", SKK_INPUT_MODE_HIRAGANA },
+    /* no match for midasi "mailingl" */
+    { SKK_INPUT_MODE_HIRAGANA, "/ m a i l i n g l \t ", "▽mailingl", "", SKK_INPUT_MODE_HIRAGANA },
     { 0, NULL }
   };
 
@@ -174,6 +198,8 @@ static SkkTransition abbrev_transitions[] =
     { SKK_INPUT_MODE_HIRAGANA, "/ b s d 3 SPC", "▼BSD/3", "", SKK_INPUT_MODE_HIRAGANA },
     /* Issue#24 */
     { SKK_INPUT_MODE_HIRAGANA, "/ t e s t C-j", "", "test", SKK_INPUT_MODE_HIRAGANA },
+    /* Pull request#39 */
+    { SKK_INPUT_MODE_HIRAGANA, "/ t e s t C-m", "▽test", "test", SKK_INPUT_MODE_HIRAGANA },
     { 0, NULL }
   };
 
@@ -200,6 +226,9 @@ static SkkTransition dict_edit_transitions[] =
     { SKK_INPUT_MODE_HIRAGANA, "K a t a k a n a SPC SPC K a t a k a n a q C-m", "", "カタカナ", SKK_INPUT_MODE_HIRAGANA },
     /* Issue#11 */
     { SKK_INPUT_MODE_HIRAGANA, "t a k K u n SPC", "▼っくん【】", "た", SKK_INPUT_MODE_HIRAGANA },
+    /* Pull request#41 */
+    { SKK_INPUT_MODE_HIRAGANA, "K a n j i k a t a k a n a k a n j i SPC K a n j i SPC K a t a k a n a q K a n j i SPC C-j", "▼かんじかたかなかんじ【漢字カタカナ漢字】", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "T e s u t o t e s u t o t e s u t o t e s u t o SPC t e s u t o T e s u t o q q T e s u t o q T e s u t o C-q  C-q T e s u t o q", "▼てすとてすとてすとてすと【てすとテストてすとﾃｽﾄてすと】", "", SKK_INPUT_MODE_HANKAKU_KATAKANA},
     { 0, NULL }
   };
 
@@ -380,6 +409,58 @@ surrounding (void) {
 }
 
 static void
+request_selection_text_cb (SkkContext* self,
+                           gpointer   user_data)
+{
+  skk_context_set_selection_text(self, "test message");
+}
+
+static void
+selection (void) {
+  SkkContext *context = create_context (TRUE, TRUE);
+  g_signal_connect (context, "request-selection-text",
+                    G_CALLBACK (request_selection_text_cb), NULL);
+  const gchar *preedit;
+  GError *error;
+  SkkRule *rule;
+  error = NULL;
+  SkkTransition transitions[] = {
+    { SKK_INPUT_MODE_HIRAGANA, "/ C-y", "▽test message", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "/ C-y C-g", "", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "/ C-y C-j", "", "test message", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "/ t e s t t e x t SPC C-y", "▼testtext【test message】", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "/ t e s t t e x t SPC C-y C-g", "▽testtext", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "/ t e s t t e x t SPC C-y C-j", "", "test message", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "/ t e s t t e x t SPC C-y C-m", "", "test message", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "A a a a SPC C-y", "▼ああああ【test message】", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_KATAKANA, "A a a a SPC C-y", "▼アアアア【test message】", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HANKAKU_KATAKANA, "A a a a SPC C-y", "▼ｱｱｱｱ【test message】", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "A a a a SPC C-y C-m", "", "test message", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "A a a a SPC C-y RET", "", "test message", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_KATAKANA, "A a a a SPC C-y C-m", "", "test message", SKK_INPUT_MODE_KATAKANA },
+    { SKK_INPUT_MODE_KATAKANA, "A a a a SPC C-y RET", "", "test message", SKK_INPUT_MODE_KATAKANA },
+    { SKK_INPUT_MODE_HANKAKU_KATAKANA, "A a a a SPC C-y C-m", "", "test message", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    { SKK_INPUT_MODE_HANKAKU_KATAKANA, "A a a a SPC C-y RET", "", "test message", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    { SKK_INPUT_MODE_HIRAGANA, "C-y", "", "test message", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "Q C-y", "▽test message", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_KATAKANA, "C-y", "", "test message", SKK_INPUT_MODE_KATAKANA },
+    { SKK_INPUT_MODE_KATAKANA, "Q C-y", "▽test message", "", SKK_INPUT_MODE_KATAKANA },
+    { SKK_INPUT_MODE_HANKAKU_KATAKANA, "C-y", "", "test message", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    { SKK_INPUT_MODE_HANKAKU_KATAKANA, "Q C-y", "▽test message", "", SKK_INPUT_MODE_HANKAKU_KATAKANA },
+    { SKK_INPUT_MODE_LATIN, "C-y", "", "test message", SKK_INPUT_MODE_LATIN },
+    { SKK_INPUT_MODE_WIDE_LATIN, "C-y", "", "test message", SKK_INPUT_MODE_WIDE_LATIN },
+    { 0, NULL }
+  };
+
+  rule = skk_rule_new ("test-selection", &error);
+  g_assert_no_error(error);
+  skk_context_set_typing_rule(context, rule);
+  g_object_unref(rule);
+  check_transitions (context, transitions);
+  destroy_context(context);
+}
+
+static void
 start_preedit_no_delete (void) {
   SkkContext *context;
   GError *error;
@@ -406,9 +487,92 @@ start_preedit_no_delete (void) {
   destroy_context (context);
 }
 
+static void
+inherit_typing_rule_for_dict_edit (void) {
+  SkkContext *context;
+  GError *error;
+  SkkRule *rule;
+  SkkTransition transitions[] = {
+    // Custom rom-kana rule.
+    { SKK_INPUT_MODE_HIRAGANA, "p g o", "", "ぽよ", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "P g o", "▽ぽよ", "", SKK_INPUT_MODE_HIRAGANA },
+    // Custom keymap (`C-a` to "abort").
+    { SKK_INPUT_MODE_HIRAGANA, "P g o C-a", "", "", SKK_INPUT_MODE_HIRAGANA },
+    // Ensure no words registered.
+    { SKK_INPUT_MODE_HIRAGANA, "P g o SPC", "▼ぽよ【】", "", SKK_INPUT_MODE_HIRAGANA },
+    // Custom keymap `C-a` in dict edit.
+    { SKK_INPUT_MODE_HIRAGANA, "P g o SPC C-a", "▽ぽよ", "", SKK_INPUT_MODE_HIRAGANA },
+    // Custom rom-kana rule in dict edit.
+    { SKK_INPUT_MODE_HIRAGANA, "P g o SPC p g o", "▼ぽよ【ぽよ】", "", SKK_INPUT_MODE_HIRAGANA },
+    // Custom rom-kana rule in dict edit.
+    { SKK_INPUT_MODE_HIRAGANA, "P g o SPC P g o", "▼ぽよ【▽ぽよ】", "", SKK_INPUT_MODE_HIRAGANA },
+    // Custom keymap `C-a` in nested dict edit.
+    { SKK_INPUT_MODE_HIRAGANA, "P g o SPC P g o SPC C-a", "▼ぽよ【▽ぽよ】", "", SKK_INPUT_MODE_HIRAGANA },
+    // Custom keymap `C-a` in dict edit.
+    { SKK_INPUT_MODE_HIRAGANA, "P g o SPC P g o C-a", "▼ぽよ【】", "", SKK_INPUT_MODE_HIRAGANA },
+    // Custom keymap `C-a` in dict edit.
+    { SKK_INPUT_MODE_HIRAGANA, "P g o SPC P g o C-a C-a", "▽ぽよ", "", SKK_INPUT_MODE_HIRAGANA },
+    { 0, NULL }
+  };
+
+  context = create_context (TRUE, TRUE);
+  error = NULL;
+  rule = skk_rule_new ("test-inherit-rule-for-dict-edit", &error);
+  g_assert_no_error (error);
+  skk_context_set_typing_rule (context, rule);
+  g_object_unref (rule);
+  check_transitions (context, transitions);
+  destroy_context (context);
+}
+
+static void
+abort_to_latin_commands (void) {
+  SkkContext *context;
+  GError *error;
+  SkkRule *rule;
+  SkkTransition transitions[] = {
+    // abort-to-latin: Test cases with no discarded inputs.
+    // In these cases, input mode should be changed to latin mode.
+    { SKK_INPUT_MODE_HIRAGANA, "C-l", "", "", SKK_INPUT_MODE_LATIN },
+    { SKK_INPUT_MODE_HIRAGANA, "a C-l", "", "あ", SKK_INPUT_MODE_LATIN },
+    // abort-to-latin: Test cases with discarded inputs.
+    // In these cases, the behaviour of `abort-to-latin` should be same as `abort`.
+    { SKK_INPUT_MODE_HIRAGANA, "A C-l", "", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "P C-l", "", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "P o p C-l", "", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "P o p o", "▽ぽぽ", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "P o p o SPC C-l", "▽ぽぽ", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "P o p o C-l", "", "", SKK_INPUT_MODE_HIRAGANA },
+    // abort-to-latin-unhandled: Test cases with no discarded inputs.
+    // In these cases, input mode should be changed to latin mode.
+    // Note: While these tests cannot represent, the key event will be
+    //       propageted because it is "unhandled" by libskk.
+    //       This enables "vi-cooperative" Escape key behaviour for example.
+    { SKK_INPUT_MODE_HIRAGANA, "Q", "", "", SKK_INPUT_MODE_LATIN },
+    { SKK_INPUT_MODE_HIRAGANA, "a Q", "", "あ", SKK_INPUT_MODE_LATIN },
+    // abort-to-latin-unhandled: Test cases with discarded inputs.
+    // These should be exactly the same behaviour as `abort-to-latin`.
+    { SKK_INPUT_MODE_HIRAGANA, "A Q", "", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "P Q", "", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "P o p Q", "", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "P o p o", "▽ぽぽ", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "P o p o SPC Q", "▽ぽぽ", "", SKK_INPUT_MODE_HIRAGANA },
+    { SKK_INPUT_MODE_HIRAGANA, "P o p o Q", "", "", SKK_INPUT_MODE_HIRAGANA },
+    { 0, NULL }
+  };
+
+  context = create_context (TRUE, TRUE);
+  error = NULL;
+  rule = skk_rule_new ("test-aborts", &error);
+  g_assert_no_error (error);
+  skk_context_set_typing_rule (context, rule);
+  g_object_unref (rule);
+  check_transitions (context, transitions);
+  destroy_context (context);
+}
+
 int
 main (int argc, char **argv) {
-  g_type_init ();
   skk_init ();
   g_test_init (&argc, &argv, NULL);
   g_test_add ("/libskk/input-mode",
@@ -452,6 +616,9 @@ main (int argc, char **argv) {
               context_setup, test_transitions, context_teardown);
   g_test_add_func ("/libskk/candidate-list", candidate_list);
   g_test_add_func ("/libskk/surrounding", surrounding);
+  g_test_add_func ("/libskk/selection", selection);
   g_test_add_func ("/libskk/start_preedit_no_delete", start_preedit_no_delete);
+  g_test_add_func ("/libskk/inherit_typing_rule_for_dict_edit", inherit_typing_rule_for_dict_edit);
+  g_test_add_func ("/libskk/abort_to_latin_commands", abort_to_latin_commands);
   return g_test_run ();
 }

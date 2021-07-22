@@ -1,7 +1,7 @@
 // -*- coding: utf-8 -*-
 /*
- * Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
- * Copyright (C) 2011-2014 Red Hat, Inc.
+ * Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+ * Copyright (C) 2011-2018 Red Hat, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ namespace Skk {
         }
     }
 
-    static const string[] PERIOD_RULE = {"。、", "．，", "。，", "．、"};
+    const string[] PERIOD_RULE = {"。、", "．，", "。，", "．、"};
 
     class RomKanaNode : Object {
         internal RomKanaEntry? entry;
@@ -188,7 +188,7 @@ namespace Skk {
             }
         }
 
-        static const string[] NN = { "ん", "ン", "ﾝ" };
+        const string[] NN = { "ん", "ン", "ﾝ" };
 
         public RomKanaConverter () {
             try {
@@ -254,7 +254,10 @@ namespace Skk {
                 if (index >= 0) {
                     index = PERIOD_RULE[period_style].index_of_nth_char (index);
                     unichar period = PERIOD_RULE[period_style].get_char (index);
-                    _output.append_unichar (period);
+                    string kana_period = Util.convert_by_input_mode(
+                        period.to_string(),
+                        (InputMode)kana_mode);
+                    _output.append (kana_period);
                     _preedit.erase ();
                     current_node = rule.root_node;
                     return true;

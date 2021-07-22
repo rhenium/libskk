@@ -2,8 +2,6 @@ libskk -- a library to deal with Japanese kana-to-kanji conversion method
 ======
 [![Build Status](https://travis-ci.org/ueno/libskk.svg?branch=master)](https://travis-ci.org/ueno/libskk) [![Coverage Status](https://img.shields.io/coveralls/ueno/libskk.svg)](https://coveralls.io/r/ueno/libskk)
 
-*I'm no longer actively maintain this project.  If you use it and want to take over the maintenance, let [me](mailto:ueno@gnu.org) know.*
-
 Features
 ------
 
@@ -26,8 +24,8 @@ Documentation
 
 * [Basic usage](https://github.com/ueno/libskk/blob/master/tests/context.c)
 * [Keymap and Romaji-to-Kana table customization](https://github.com/ueno/libskk/blob/master/rules/README.rules)
-* [Vala binding reference](http://du-a.org/docs/libskk/libskk/)
-* [C binding reference](http://du-a.org/docs/gtk-doc/libskk/html/)
+* [Vala binding reference](https://ueno.github.io/libskk/vala/)
+* [C binding reference](https://ueno.github.io/libskk/c/)
 
 Test
 ------
@@ -47,8 +45,8 @@ License
 ```
 GPLv3+
 
-Copyright (C) 2011-2014 Daiki Ueno <ueno@gnu.org>
-Copyright (C) 2011-2014 Red Hat, Inc.
+Copyright (C) 2011-2018 Daiki Ueno <ueno@gnu.org>
+Copyright (C) 2011-2018 Red Hat, Inc.
 
 This file is free software; as a special exception the author gives
 unlimited permission to copy and/or distribute it, with or without
