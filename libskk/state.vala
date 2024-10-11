@@ -73,9 +73,12 @@ namespace Skk {
         internal StringBuilder abbrev = new StringBuilder ();
         internal StringBuilder kuten = new StringBuilder ();
 
+        // Used by Completion
         ArrayList<string> completion = new ArrayList<string> ();
         internal BidirListIterator<string> completion_iterator;
         internal Set<string> completion_set = new HashSet<string> ();
+        internal CompletionService normal_completion_service = null;
+        internal CompletionService abbrev_completion_service = null;
 
         internal string[] auto_start_henkan_keywords;
         internal string? auto_start_henkan_keyword = null;
@@ -350,18 +353,50 @@ namespace Skk {
             }
         }
 
-        internal void completion_start (string midasi) {
-            foreach (var dict in dictionaries) {
-                string[] _completion = dict.complete (midasi);
-                foreach (var word in _completion) {
-                    if (completion_set.add (word)) {
-                        completion.add (word);
-                    }
-                }
-                completion.sort ();
+        internal void update_completion_sources(string mode, CompletionSource[] sources) {
+            var service = new CompletionService();
+            foreach (var source in sources) {
+                service.add_source(source, source.priority);
             }
-            completion_iterator = completion.bidir_list_iterator ();
-            if (!completion_iterator.first ()) {
+
+            if (mode == "normal") {
+                normal_completion_service = service;
+            } else if (mode == "abbrev") {
+                abbrev_completion_service = service;
+            } else {
+                warning("Invalid mode specified: %s", mode);
+            }
+        }
+
+        internal void completion_start (string midasi) {
+            if (normal_completion_service == null) {
+                normal_completion_service = new CompletionService();
+                foreach (var dict in dictionaries) {
+                    normal_completion_service.add_source(dict, dict.read_only ? 10 : 20);
+                }
+            }
+            if (abbrev_completion_service == null) {
+                abbrev_completion_service = new CompletionService();
+                foreach (var dict in dictionaries) {
+                    abbrev_completion_service.add_source(dict, dict.read_only ? 10 : 20);
+                }
+            }
+
+            completion.clear();
+            completion_set.clear();
+
+            var service = (handler_type == typeof(AbbrevStateHandler)) ?
+                abbrev_completion_service : normal_completion_service;
+
+            var completions = service.get_completions(midasi);
+            foreach (string word in completions) {
+                if (completion_set.add(word)) {
+                    completion.add(word);
+                }
+            }
+
+            completion_iterator = completion.bidir_list_iterator();
+            if (!completion_iterator.first()) {
                 completion_iterator = null;
             }
         }
